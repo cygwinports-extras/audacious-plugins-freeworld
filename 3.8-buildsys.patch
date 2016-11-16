@@ -1,0 +1,65 @@
+--- origsrc/audacious-3.8/acinclude.m4	2016-09-21 20:08:54.000000000 -0500
++++ src/audacious-3.8/acinclude.m4	2016-11-16 13:29:02.293204700 -0600
+@@ -49,6 +49,7 @@ AC_MSG_CHECKING([operating system type])
+ 
+ HAVE_LINUX=no
+ HAVE_MSWINDOWS=no
++HAVE_CYGWIN=no
+ HAVE_DARWIN=no
+ 
+ case "$target" in
+@@ -60,6 +61,10 @@ case "$target" in
+         AC_MSG_RESULT(Windows)
+         HAVE_MSWINDOWS=yes
+         ;;
++    *cygwin*)
++        AC_MSG_RESULT(Cygwin)
++        HAVE_CYGWIN=yes
++        ;;
+     *darwin*)
+         AC_MSG_RESULT(Darwin)
+         HAVE_DARWIN=yes
+@@ -71,6 +76,7 @@ esac
+ 
+ AC_SUBST(HAVE_MSWINDOWS)
+ AC_SUBST(HAVE_LINUX)
++AC_SUBST(HAVE_CYGWIN)
+ AC_SUBST(HAVE_DARWIN)
+ 
+ dnl Check for C and C++ compilers
+@@ -125,7 +131,7 @@ AC_SUBST([BIGENDIAN])
+ 
+ dnl Prevent symbol collisions
+ dnl =========================
+-if test "x$HAVE_MSWINDOWS" = "xyes" ; then
++if test "x$HAVE_MSWINDOWS$HAVE_CYGWIN" != "xnono" ; then
+     EXPORT="__declspec(dllexport)"
+ elif test "x$GCC" = "xyes" ; then
+     CFLAGS="$CFLAGS -fvisibility=hidden"
+--- origsrc/audacious-3.8/m4/buildsys.m4	2016-11-16 13:29:47.289629000 -0600
++++ src/audacious-3.8/m4/buildsys.m4	2016-11-16 13:15:01.056236600 -0600
+@@ -148,7 +148,23 @@ AC_DEFUN([BUILDSYS_SHARED_LIB], [
+ 			UNINSTALL_LIB='&& rm -f ${DESTDIR}${libdir}/$$i'
+ 			CLEAN_LIB=''
+ 			;;
+-		cygwin* | mingw*)
++		cygwin*)
++			AC_MSG_RESULT(Cygwin)
++			LIB_CPPFLAGS='-DPIC'
++			LIB_CFLAGS=''
++			LIB_LDFLAGS='-shared -Wl,--out-implib,$(SHARED_LIB:cyg%${LIB_SUFFIX}=lib%.dll.a)'
++			LIB_PREFIX='cyg'
++			LIB_SUFFIX='-${LIB_MAJOR}.dll'
++			LDFLAGS_RPATH=''
++			PLUGIN_CPPFLAGS=''
++			PLUGIN_CFLAGS=''
++			PLUGIN_LDFLAGS='-shared'
++			PLUGIN_SUFFIX='.dll'
++			INSTALL_LIB='${MKDIR_P} ${DESTDIR}${bindir} && ${INSTALL} -m 755 $$i ${DESTDIR}${bindir}/$$i && ${INSTALL} -m 755 $(SHARED_LIB:cyg%${LIB_SUFFIX}=lib%.dll.a) ${DESTDIR}${libdir}/$(SHARED_LIB:cyg%${LIB_SUFFIX}=lib%.dll.a)'
++			UNINSTALL_LIB='rm -f ${DESTDIR}${bindir}/$$i ${DESTDIR}${libdir}/$(SHARED_LIB:cyg%${LIB_SUFFIX}=lib%.dll.a)'
++			CLEAN_LIB='$(SHARED_LIB:cyg%${LIB_SUFFIX}=lib%.dll.a)'
++			;;
++		mingw*)
+ 			AC_MSG_RESULT(Win32)
+ 			LIB_CFLAGS=''
+ 			LIB_LDFLAGS='-shared -Wl,--out-implib,${SHARED_LIB}.a'

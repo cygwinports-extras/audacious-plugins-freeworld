@@ -1,0 +1,23 @@
+--- origsrc/audacious-plugins-3.8/configure.ac	2016-09-21 20:14:58.000000000 -0500
++++ src/audacious-plugins-3.8/configure.ac	2016-11-16 13:27:35.349483400 -0600
+@@ -89,8 +89,10 @@ if test "x$USE_GTK" = "xyes" -o "x$USE_Q
+     GENERAL_PLUGINS="$GENERAL_PLUGINS delete-files skins-data"
+ fi
+ 
+-if test $HAVE_MSWINDOWS = yes ; then
++have_waveout=no
++if test $HAVE_MSWINDOWS$HAVE_CYGWIN != nono ; then
+     OUTPUT_PLUGINS="$OUTPUT_PLUGINS waveout"
++    have_waveout=yes
+ fi
+ 
+ check_allowed () {
+@@ -739,7 +741,7 @@ echo "  Open Sound System:
+ echo "  PulseAudio:                             $have_pulse"
+ echo "  Simple DirectMedia Layer:               $have_sdlout"
+ echo "  Sndio:                                  $have_sndio"
+-echo "  Win32 waveOut:                          $HAVE_MSWINDOWS"
++echo "  Win32 waveOut:                          $have_waveout"
+ echo "  FileWriter:                             $enable_filewriter"
+ echo "    -> MP3 encoding:                      $have_lame"
+ echo "    -> Vorbis encoding:                   $have_vorbis"
