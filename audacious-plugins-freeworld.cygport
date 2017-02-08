@@ -1,5 +1,5 @@
 NAME="audacious-plugins-freeworld"
-VERSION=3.8.1
+VERSION=3.8.2
 RELEASE=1
 CATEGORY="Audio"
 SUMMARY="GTK audio player, fork of BMP/XMMS (plugins)"
